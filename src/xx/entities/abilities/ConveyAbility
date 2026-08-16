@@ -1,0 +1,84 @@
+package xx.entities.abilities;
+
+import arc.Core;
+import arc.graphics.g2d.Draw;
+import arc.graphics.g2d.Lines;
+import arc.input.KeyCode;
+import arc.util.Time;
+import mindustry.content.Fx;
+import mindustry.entities.abilities.Ability;
+import mindustry.gen.Player;
+import mindustry.gen.Unit;
+import mindustry.graphics.Layer;
+import mindustry.graphics.Pal;
+import xx.expand.xx_Fx;
+
+import static mindustry.Vars.player;
+
+public class ConveyAbility extends Ability {
+    private boolean teleportMode = false;
+    private boolean banConvey = true;
+
+    @Override
+    public void update(Unit unit){
+        if (!(unit.controller() instanceof Player)) return;
+        if (Core.scene.hasDialog() || Core.scene.hasField()) return;
+        if (player.dead()) return;
+        if(Core.input.keyTap(KeyCode.k) )teleportMode = !teleportMode;//模式切换
+
+        if (teleportMode && Core.input.keyTap(KeyCode.mouseLeft) && banConvey) teleportToMouse(unit);
+    }
+
+
+    private void teleportToMouse(Unit unit) {
+
+
+        float oldX = unit.x;
+        float oldY = unit.y;
+        banConvey = false;
+
+        float mouseX = Core.input.mouseWorldX();
+        float mouseY = Core.input.mouseWorldY();
+        Fxxx.fxConveyCircle.at(mouseX, mouseY);
+
+        Time.run(30f, () -> {
+            unit.x=mouseX;
+            unit.y=mouseY;
+            unit.vel.setZero();
+            Fx.unitControl.at(mouseX, mouseY,0,unit);
+            Fxxx.fxConveyCircleB.at(mouseX, mouseY);
+            banConvey = true;
+        });
+
+
+    }
+
+    @Override
+    public void draw(Unit unit){
+        if(!(teleportMode)) return;
+
+        Draw.z(Layer.effect);  // 单位脚下
+
+
+
+        float radius = unit.hitSize * 1.2f;
+
+        // 外环
+        Draw.alpha(0.4f);
+        Draw.color(Pal.accent);
+        Lines.stroke(3f);
+        Lines.circle(unit.x, unit.y, radius);
+
+
+
+        Draw.reset();
+    }
+
+
+
+
+
+
+
+
+}

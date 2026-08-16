@@ -1,0 +1,7 @@
+{
+	"name": "重位R",
+	"color": "ffd59e",
+    "reactive": true,
+    "affinities": ["失衡"],
+    "transitionDamage": 30
+}

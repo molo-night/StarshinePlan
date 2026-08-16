@@ -1,0 +1,21 @@
+{
+	"name": "失衡",
+	"color": "ffd59e",
+	"healthMultiplier": 0.8,
+	"speedMultiplier": 0.9,
+	"damageMultiplier": 0.75,
+	"effectChance": 1,
+	"effect": {
+		"type": "ParticleEffect",
+		"region":"xx-mod-十字星",
+		"particles": 1,
+		"sizeFrom":16,
+		"sizeTo": 4,
+		"sizeInterp":"pow10In",
+		"length": 0,
+		"baseLength": 0,
+		"lifetime": 25,
+		"colorFrom": "FFFFFF",
+		"colorTo": "ffd59e"
+	}
+}

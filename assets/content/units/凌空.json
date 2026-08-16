@@ -1,0 +1,507 @@
+{
+	"type": "flying", //神魂写的。我也不知道对不对
+	"name": "凌空", //名字
+	"description": "巨大的飞行堡垒", //介绍
+	"speed": 2.5, //移动速度
+	"rotateSpeed": 0.75, //旋转的速度
+	"hitSize": 120, //单位的大小。8=1格
+	//"mass": 40, //单位的质量/重量。越大越抗击退和行动越慢
+	"health": 225000, //血量
+	"itemCapacity": 1500, //携带物品容量
+	"flying": true, //是否飞行
+	"lightRadius": 840,//黑天照明半径
+    //"layer":60,
+    "lowAltitude" : true,
+	"parts":[
+        {
+            "type": "ShapePart",//圆形运动：攻击时重新加载
+            "x":0,"y":0.25,//围绕的坐标
+            "color": "edf3a9",//颜色
+            "circle": true,//圆形
+            "hollow": true,//空心
+            "stroke":8,//静止时粗细 填数字
+            "strokeTo":8,//运行时粗细
+            "radius": 180,//静止时大小
+            "radiusTo": 180,//运行时大小
+            "layer": 110 //层，49-110
+        },
+        {
+            "type": "ShapePart",//圆形运动：攻击时重新加载
+            "x":0,"y":0.25,//围绕的坐标
+            "color": "dcf3ff30",//颜色
+            "circle": true,//圆形
+            "hollow": true,//空心
+            "stroke":2,//静止时粗细 填数字
+            "strokeTo":2,//运行时粗细
+            "radius": 400,//静止时大小
+            "radiusTo": 400,//运行时大小
+            "layer": 500 //层，49-110
+        },
+        {
+            "type": "HaloPart",//多边形运动：攻击判定可选
+            "progress":{//特效刷新类型
+                "type":"reload",
+                "op":"delay",//不清楚
+                "amount":1 //射击是否重制特效（0是关1是开
+            },
+            "x":0,"y":0.25,//围绕的坐标
+            "rotateSpeed": 0,//图形旋转
+            "sides": 3,//环绕的图形边数（仅"tri":false时可用）
+            "shapes": 16,//环绕的图形数量
+            "color": "dcf3ff30",//图形颜色
+            "tri": true,//是否为三角形
+            "hollow": true,//是否为空心（仅"tri":false时可用）
+            "stroke": 2,//图形线条厚度
+            "strokeTo": 2,//图形线条厚度
+            "radius": 5,//图形大小（"tri":false）&三角形底长（"tri":true）
+            "radiusTo": 5,//图形大小（"tri":false）&三角形底长（"tri":true）
+            "triLength": 15,//三角形尖锐程度当（"tri":true）时
+            "triLengthTo": 15,//三角形尖锐程度当（"tri":true）时
+            "haloRadius": 400.94,//旋转半径
+            "haloRotation": 0,//初始角度
+            "haloRotateSpeed": 0.5,//旋转速度
+            "layer": 110 //层，49-110
+        },
+        {
+            "type": "HaloPart",//多边形运动：攻击判定可选
+            "progress":{//特效刷新类型
+                "type":"reload",
+                "op":"delay",//不清楚
+                "amount":0 //射击是否重制特效（0是关1是开
+            },
+            "x":0,"y":0.25,//围绕的坐标
+            "rotateSpeed": 0,//图形旋转
+            "sides": 3,//环绕的图形边数（仅"tri":false时可用）
+            "shapes": 10,//环绕的图形数量
+            "color": "edf3a9",//图形颜色
+            "tri": true,//是否为三角形
+            "hollow": true,//是否为空心（仅"tri":false时可用）
+            "stroke": 4,//图形线条厚度
+            "strokeTo": 4,//图形线条厚度
+            "radius": 20,//图形大小（"tri":false）&三角形底长（"tri":true）
+            "radiusTo": 20,//图形大小（"tri":false）&三角形底长（"tri":true）
+            "triLength": 35,//三角形尖锐程度当（"tri":true）时
+            "triLengthTo": 35,//三角形尖锐程度当（"tri":true）时
+            "haloRadius": 180,//旋转半径
+            "haloRotation": 0,//初始角度
+            "haloRotateSpeed": -0.45,//旋转速度
+            "layer": 110 //层，49-110
+        },
+        {
+            "type": "HaloPart",//多边形运动：攻击判定可选
+            "progress":{//特效刷新类型
+                "type":"reload",
+                "op":"delay",//不清楚
+                "amount":0 //射击是否重制特效（0是关1是开
+            },
+            "x":0,"y":0.25,//围绕的坐标
+            "rotateSpeed": 0.75,//图形旋转
+            "sides": 3,//环绕的图形边数（仅"tri":false时可用）
+            "shapes": 1,//环绕的图形数量
+            "color": "edf3a9150",//图形颜色
+            "tri": false,//是否为三角形
+            "hollow": true,//是否为空心（仅"tri":false时可用）
+            "stroke": 8,//图形线条厚度
+            "strokeTo": 8,//图形线条厚度
+            "radius": 118,//图形大小（"tri":false）&三角形底长（"tri":true）
+            "radiusTo": 118,//图形大小（"tri":false）&三角形底长（"tri":true）
+            "triLength": 116,//三角形尖锐程度当（"tri":true）时
+            "triLengthTo": 116,//三角形尖锐程度当（"tri":true）时
+            "haloRadius": 0,//旋转半径
+            "haloRotation": 0,//初始角度
+            "haloRotateSpeed": 0,//旋转速度
+            "layer": 110 //层，49-110
+        },
+        {
+            "type": "HaloPart",//多边形运动：攻击判定可选
+            "progress":{//特效刷新类型
+                "type":"reload",
+                "op":"delay",//不清楚
+                "amount":0 //射击是否重制特效（0是关1是开
+            },
+            "x":0,"y":0.25,//围绕的坐标
+            "rotateSpeed": 0.75,//图形旋转
+            "sides": 3,//环绕的图形边数（仅"tri":false时可用）
+            "shapes": 1,//环绕的图形数量
+            "color": "edf3a9150",//图形颜色
+            "tri": false,//是否为三角形
+            "hollow": true,//是否为空心（仅"tri":false时可用）
+            "stroke": 8,//图形线条厚度
+            "strokeTo": 8,//图形线条厚度
+            "radius": 118,//图形大小（"tri":false）&三角形底长（"tri":true）
+            "radiusTo": 118,//图形大小（"tri":false）&三角形底长（"tri":true）
+            "triLength": 116,//三角形尖锐程度当（"tri":true）时
+            "triLengthTo": 116,//三角形尖锐程度当（"tri":true）时
+            "haloRadius": 0,//旋转半径
+            "haloRotation": 60,//初始角度
+            "haloRotateSpeed": 0,//旋转速度
+            "layer": 110 //层，49-110
+        }
+        
+	],
+	"immunities":[
+            "blasted","burning","electrified",
+            "freezing","melting","disarmed",
+            "sapped","shocked","slow",
+            "tarred","unmoving","wet",
+            "spore-slowed","corroded","失衡","重位"],
+	"engines": [
+        {
+            "x": 25,
+            "y": -68.25,
+            "radius": 15,
+            "rotation": 60
+        },
+		{
+            "x": -25,
+            "y": -68.25,
+            "radius": 15,
+            "rotation": 60
+        },
+		{
+            "x": 0,
+            "y": -70.75,
+            "radius": 25,
+            "rotation": 60
+        }
+    ],
+    "abilities":[
+        {
+			"type": "ForceFieldAbility",
+			"radius": 200,
+			"regen":200,
+			"sides":100,
+			"max":120000,
+			"cooldown":0
+		},
+        {
+			"type": "ShieldRegenFieldAbility",//护盾恢复场（给予护盾
+            //"shootEffect":"none",//给予时的特效
+			"range": 400,//范围
+			"amount":1000,//每次恢复数量
+			"max":5000,//最大护盾数量
+			"reload":120 //间隔
+        },
+        {
+            "type":"RegenAbility",//自我修复
+            "percentAmount":0.03 //每秒修复百分比
+        }
+    ],
+	//"isCounted": true,
+	"armor": 65, //护甲
+	"accel": 0.04, //（飞行专属）初始加速度。删除它表示没有加速度，直接最大速度
+	"drag": 0.08, //滑行（飞行专属）。越小越滑。删除它表示没有滑行。增大会导致难掉头
+	"targetAir": true, //目标空气
+	"faceTarget": true, //贴脸目标
+	//"targetFlag": "core",
+	"circleTarget": true, //圈出目标（显示攻击目标）
+	//"destructibleWreck": true, //破坏性残骸（飞行专属）.死掉是否掉落砸向地面造成伤害。false是直接爆炸。
+	"weapons": [//武器（武器可以使用任何方式的武器+子弹的组合）武器写法找神魂要。
+    {
+        "name": "电浆",
+        "mirror": true,
+        "top":false,
+        //"layer":110,
+        "reload":35,
+        "shootY":7.25,
+        "x":45.25,
+        "y":-39.25,
+        "rotate": true,
+        "controllable":true,//测试用
+        "rotateSpeed":5,
+        "shootSound": "c-shoot/c-laser",
+        "heatColor":"f19583",
+        "shake": 1,
+        "bullet":
+        {
+        "layer":610,
+        "type": "LaserBulletType",
+		"colors": ["fff36c60", "fff36c90", "FFFFFF120"],
+        "status": "失衡",
+        "statusDuration": 30,
+        //"infinitepierc": true,
+		"damage":550,
+		"length": 480,
+		"width": 32,
+		"lifetime": 20,
+		"hitSize": 5,
+		"drawSize": 100,
+		"hitEffect": "hitLancer", 
+		"despawnEffect": "none",
+        "sideAngle": 35,  // 边侧角度
+        "sideWidth": 1,  // 边侧宽度
+        "sideLength": 30  // 边侧长度
+        }
+    },
+    {
+        "name": "电浆",
+        "mirror": false,
+        "top":false,
+        //"layer":110,
+        "reload":120,
+        "shootY":7.25,
+        "x":0,
+        "y":-29.75,
+        "rotate": true,
+        "controllable":true,//测试用
+        "rotateSpeed":5,
+        "shootSound": "c-shoot/c-laser",
+        "heatColor":"f19583",
+        "shake": 1,
+        "bullet":
+        {
+        "layer":610,
+        "type": "LaserBulletType",
+		"colors": ["fff36c60", "fff36c90", "FFFFFF120"],
+        "status": "失衡",
+        "statusDuration": 60,
+        //"infinitepierc": true,
+		"damage":1150,
+		"length": 640,
+		"width": 64,
+		"lifetime": 45,
+		"hitSize": 8,
+		"drawSize": 100,
+		"hitEffect": "hitLancer", 
+		"despawnEffect": "none",
+        "sideAngle": 35,  // 边侧角度
+        "sideWidth": 1,  // 边侧宽度
+        "sideLength": 30  // 边侧长度
+        }
+    },
+    {
+        "name": "电离",
+        "mirror": true,
+        "top":false,
+        //"layer":110,
+        "reload":20,
+        "shootY":3,
+        "x":32.5,
+        "y":1.25,
+        "rotate": true,
+        "controllable":true,//测试用
+        "rotateSpeed":5,
+        "shootSound": "c-shoot/c-shootSnap",
+        "heatColor":"f19583",
+        "shake": 1,
+        
+        "shoot": {
+		"shotDelay":2,//间隔
+		"shots":5 //一次打几发
+	     },
+        "bullet":
+        {
+        "layer":610,
+        "backColor": "ffd59e",
+			"frontColor": "ffffff",
+			"type": "BasicBulletType",
+			"speed": 8.75,
+			"damage":125,
+			"lifetime": 45,
+			"width": 12,
+			"height": 18,
+            "pierceCap":3,
+			"knockback":0.2,
+            "status": "shocked",
+            "lightning":3,
+            "lightningLength":8,
+            "lightningDamage":15,
+            "shootEffect":{
+			"type": "MultiEffect",
+				"effects": [
+                    {
+                        "type": "ParticleEffect",
+                        "region":"xx-mod-O",
+                        "particles": 16,
+                        "sizeFrom":3,
+                        "sizeTo": 5,
+                        //"sizeInterp":"pow10In",
+                        "length": 24,
+                        "baseLength": 8,
+                        "lifetime": 20,
+                        "colorFrom": "FFFFFF100",
+                        "colorTo": "ffd59e00",
+                        "layer":611,
+                        "cone": 10
+                    },
+                  {
+                    "type": "ParticleEffect",
+                    "region":"xx-mod-O",
+                    "particles": 16,
+                    "sizeFrom":3,
+                    "sizeTo": 5,
+                    //"sizeInterp":"pow10In",
+                    "length": 24,
+                    "baseLength": 8,
+                    "lifetime": 15,
+                    "colorFrom": "FFFFFF100",
+                    "colorTo": "ffd59e00",
+                    "layer":611,
+                    "cone": 10
+                  }
+                ]},
+            "despawnEffect":{
+                "type": "MultiEffect",
+                "effects": [
+                {
+                    "type": "ExplosionEffect",//爆炸特效{复杂特效}（类似与线状展出）
+                    "lifetime": 20,//存在时间
+                    "waveLife": 10,//波存在时间
+                    "waveRadBase": 4,//波半径随机量
+                    "waveRad": 8,//波半径
+                    "waveColor": "FFFFFF",//波颜色
+                    "smokes": 6,//烟雾数量
+                    "smokeColor": "FFFFFF",//烟雾颜色
+                    "sparks": 30,//火花数量
+                    "sparkColor": "ffd59e",//火花颜色
+                    "sparkRad": 12,//火花半径
+                    "sparkStroke": 2,//火花厚度
+                    "sparkLen": 8 //火花长度
+                }]},    
+			"hitEffect": {
+			"type": "MultiEffect",
+				"effects": [
+                {
+                    "type": "ExplosionEffect",//爆炸特效{复杂特效}（类似与线状展出）
+                    "lifetime": 20,//存在时间
+                    "waveLife": 10,//波存在时间
+                    "waveRadBase": 4,//波半径随机量
+                    "waveRad": 8,//波半径
+                    "waveColor": "FFFFFF",//波颜色
+                    "smokes": 6,//烟雾数量
+                    "smokeColor": "FFFFFF",//烟雾颜色
+                    "sparks": 30,//火花数量
+                    "sparkColor": "ffd59e",//火花颜色
+                    "sparkRad": 12,//火花半径
+                    "sparkStroke": 2,//火花厚度
+                    "sparkLen": 8 //火花长度
+                }]}
+    }},
+    {
+        "name": "电破",
+        "mirror": true,
+        "top":false,
+        "recoil": 0,
+        //"layer":0,
+        "reload":60,
+        "shootY":68.75,
+        "shootX":16.5,
+        "x":0,
+        "y":17,
+        "rotate": false,
+        "controllable":true,//测试用
+        "rotateSpeed":0,
+        "shootSound": "c-shoot/c-shootBig",
+        "heatColor":"f19583",
+        "shake": 5,
+        "shoot": {
+		"shotDelay":2,//间隔
+		"shots":3 //一次打几发
+	     },
+        "bullet":
+        {
+        "layer":110,
+        "backColor": "ffd59e",
+			"frontColor": "ffffff",
+			"type": "BasicBulletType",
+			"speed": 16,
+			"damage":225,
+			"lifetime": 30,
+			"width": 32,
+			"height": 72,
+			"knockback":1,
+            "status": "shocked",
+            "lightning":5,
+            "lightningLength":20,
+            "lightningDamage":80,
+            "shootEffect":{
+			"type": "MultiEffect",
+				"effects": [
+				{
+					"type": "ParticleEffect",
+					"region":"xx-mod-O",
+					"particles": 32,
+					"sizeFrom":5,
+					"sizeTo": 12,
+					//"sizeInterp":"pow10In",
+					"length": 48,
+					"baseLength": 16,
+					"lifetime": 30,
+					"colorFrom": "FFFFFF100",
+					"colorTo": "ffd59e00",
+                    "layer":611,
+					"cone": 20
+				},
+                  {
+                    "type": "ParticleEffect",
+                    "region":"xx-mod-O",
+                    "particles": 32,
+                    "sizeFrom":3,
+                    "sizeTo": 5,
+                    //"sizeInterp":"pow10In",
+                    "length": 24,
+                    "baseLength": 8,
+                    "lifetime": 10,
+                    "colorFrom": "FFFFFF100",
+                    "colorTo": "ffd59e00",
+                    "layer":611,
+                    "cone": 25
+                  }
+
+
+
+                ]},
+            "despawnEffect":{
+                "type": "MultiEffect",
+                "effects": [
+                {
+                    "type": "ExplosionEffect",//爆炸特效{复杂特效}（类似与线状展出）
+                    "lifetime": 20,//存在时间
+                    "waveLife": 10,//波存在时间
+                    "waveRadBase": 4,//波半径随机量
+                    "waveRad": 16,//波半径
+                    "waveColor": "FFFFFF",//波颜色
+                    "smokes": 6,//烟雾数量
+                    "smokeColor": "FFFFFF",//烟雾颜色
+                    "sparks": 30,//火花数量
+                    "sparkColor": "ffd59e",//火花颜色
+                    "sparkRad": 24,//火花半径
+                    "sparkStroke": 2,//火花厚度
+                    "sparkLen": 8 //火花长度
+                }]},    
+			"hitEffect": {
+			"type": "MultiEffect",
+				"effects": [
+                {
+                    "type": "ExplosionEffect",//爆炸特效{复杂特效}（类似与线状展出）
+                    "lifetime": 20,//存在时间
+                    "waveLife": 10,//波存在时间
+                    "waveRadBase": 4,//波半径随机量
+                    "waveRad": 16,//波半径
+                    "waveColor": "FFFFFF",//波颜色
+                    "smokes": 6,//烟雾数量
+                    "smokeColor": "FFFFFF",//烟雾颜色
+                    "sparks": 30,//火花数量
+                    "sparkColor": "ffd59e",//火花颜色
+                    "sparkRad": 24,//火花半径
+                    "sparkStroke": 2,//火花厚度
+                    "sparkLen": 8 //火花长度
+                }]}    
+            }}
+],
+	 "research": "eclipse"//科技树排序
+
+	 ///需要注意的是，如果你写敌方单位，你需要一个单位工厂来制造它，然后你才能在编辑器波次里面加入它。
+	 //该单位工厂可以试着用"buildVisibility": "hiden",来禁止玩家建造
+}
+//------------------------------------------------
+/*
+"buildVisibility":
+sandboxOnly,仅沙盒
+hiden:不显示，隐藏
+shown:显示
+debugOnly:仅调试
+editorOnly:仅编辑器 
+适用所有东西
+*/
+

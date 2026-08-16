@@ -1,0 +1,371 @@
+{
+	"type": "missile",
+	"template": "MissileUnitType",
+	"name": "高当量炸弹",
+	"homingDelay":0,
+	"speed": 0.001,
+	"lifetime":0.001,
+	"targetPriority":-1,
+	"rotateSpeed":0,
+	"loopSoundVolume":0.03,
+	"deathSound":"none",
+	"hidden":false,
+	"targetable": false,
+	"missileAccelTime":40,
+	"hitSize":6,
+	"health": 10000,
+	"armor":35,
+	"immunities":["disarmed"],
+	"fogRadius":0,
+	"engineColor":"c0ecff",
+	"trailColor":"c0ecff",
+	"trailLength":0,
+	"engineOffset": 0,
+	"engineSize": 0,
+	"maxRange":30,
+	"layer":0,
+	"weapons":[
+		{"name":"自爆",
+		"x":0,"y":0,
+		"reload":1,
+		"mirror":false,
+		"rotate": false,
+		"shootCone":360,
+		"shake":10,
+		"shootSound":"none",
+		"shootOnDeath":true,
+		"bullet":
+		{
+		"instantDisappear":true,
+		"pierce": true,
+		"pierceBuilding": true,
+		"hittable":false,
+		"reflectable":false,
+		"ammoMultiplier": 1,
+		"hitSound":"none",
+		"hitSoundVolume":0,
+		"damage":4000,
+		"killShooter":true,
+ 	   	"splashDamageRadius": 66,
+ 	   	"splashDamage": 6000,
+		"hitShake":5,
+		"shootEffect":"none",
+		"smokeEffect":"none",
+		"despawnEffect":"none",
+
+		"fragBullets": 1,
+		"fragAngle": 0,
+		"fragRandomSpread": 0,
+		"fragVelocityMax": 1,
+		"fragVelocityMin": 1,
+		"fragBullet":{
+			"keepVelocity":false,
+			"height":1,
+			"width":1,
+			"lifetime": 600,
+			"speed": 30,
+			"collides": false,
+			"collidesTeam": false,
+			"collidesGround":false,
+			"absorbable": false,
+			"hittable": false,
+			"collidesTerrain":false,
+			"lightningDamage": 120,
+			"lightning": 6,
+			"lightningLength": 4,
+			"backColor": "c0ecff",
+			"frontColor": "000000",
+			"drag": 0.06,
+			"parts":[
+				{
+					"type": "ShapePart",
+					"color": "000000",
+					"circle": true,
+					"hollow": false,
+					"radius": 20,
+					"radiusTo": 20,
+					"layer":120
+
+				},
+				{
+					"type": "HaloPart",
+					"rotateSpeed": 0,
+					"shapeRotation": 0,
+					"sides": 3,
+					"shapes":4,
+					"color": "76428a",
+					"colorTo": "76428a",
+					"tri":true,
+					"hollow": true,
+					"radius":40,
+					"radiusTo":40,
+					"triLength":12,
+					"triLengthTo":12,
+					"haloRadius": 50,
+					"haloRadiusTo": 50,
+					"haloRotation": 0,
+					"haloRotateSpeed": -1
+				},
+				{
+					"type": "HaloPart",
+					"sides": 8,
+					"shapes": 1,
+					"rotateSpeed": 1,
+					"color": "76428a80",
+					"colorTo": "76428a80",
+					"tri": false,
+					"hollow": true,
+					"stroke": 1,
+					"strokeTo": 1,
+					"radius": 54,
+					"radiusTo": 54,
+					"haloRadius": 0
+				},
+
+				{
+					"type": "HaloPart",
+					"rotateSpeed": 0,
+					"shapeRotation": 0,
+					"sides": 3,
+					"shapes":4,
+					"color": "76428a",
+					"colorTo": "76428a",
+					"tri":true,
+					"hollow": true,
+					"radius":40,
+					"radiusTo":40,
+					"triLength":12,
+					"triLengthTo":12,
+					"haloRadius": 70,
+					"haloRadiusTo":70,
+					"haloRotation": 0,
+					"haloRotateSpeed": 1.6
+				},
+				{
+					"type": "HaloPart",
+					"sides": 8,
+					"shapes": 1,
+					"rotateSpeed": -1.6,
+					"color": "76428a80",
+					"colorTo": "76428a80",
+					"tri": false,
+					"hollow": true,
+					"stroke": 1,
+					"strokeTo": 1,
+					"radius": 74,
+					"radiusTo": 74,
+					"haloRadius": 0
+				}
+			],
+			"trailColor": "76428a",
+			"trailInterval": 2,
+			"trailEffect": {
+				"type": "WaveEffect",
+				"lifetime": 50,
+				"sizeFrom": 0,
+				"sizeTo": 80,
+				"interp": "circleOut",
+				"strokeFrom": 9,
+				"strokeTo": 0,
+				"colorFrom": "76428a20",
+				"colorTo": "76428a10"
+			},
+
+            "bulletInterval": 0.1,
+			"intervalBullets": 2,
+			"intervalRandomSpread": 360,
+			"intervalBullet":{
+				"height":1,
+				"width": 1,
+				"lifetime": 600,
+				"speed": 10,
+				"damage":0,
+				"hitShake": 0,
+				"homingRange": 3800,
+				"homingDelay": 20,
+				"homingPower": 1,
+				"parts":[
+		{
+			"type": "HaloPart",
+			"top":true,
+			"rotateSpeed": 0,
+			"shapeRotation": 0,
+			"sides": 3,
+			"shapes":2,
+			"color": "FEEBB3",
+			"colorTo": "FEEBB3",
+			"interp": "pow10Out",
+			"sizeInterp": "pow5In",
+			"tri":true,
+			"hollow": true,
+			"radius":6,
+			"radiusTo":6,
+			"triLength": 40,
+			"triLengthTo":40,
+			"haloRadius": 0,
+			"haloRadiusTo": 0,
+			"haloRotation": 90,
+			"haloRotateSpeed": 0,
+			"layer":110
+		},
+		{
+			"type": "HaloPart",
+			"top":true,
+			"rotateSpeed": 0,
+			"shapeRotation": 0,
+			"sides": 3,
+			"shapes":2,
+			"color": "FEEBB3",
+			"colorTo": "FEEBB3",
+			"interp": "pow10Out",
+			"sizeInterp": "pow5In",
+			"tri":true,
+			"hollow": true,
+			"radius":6,
+			"radiusTo":6,
+			"triLength": 30,
+			"triLengthTo":30,
+			"haloRadius": 0,
+			"haloRadiusTo": 0,
+			"haloRotation": 0,
+			"haloRotateSpeed": 0,
+			"layer":110
+		}
+	],
+	"trailColor":"c0ecff",
+	"trailLength":32,
+
+	"fragBullets": 1,
+	"fragRandomSpread": 0,
+	"fragLifeMin": 1,
+	"fragVelocityMax": 1,
+	"fragVelocityMin": 1,
+	"fragBullet":{
+                "spawnUnit":"B2"
+	}
+			},
+			"despawnEffect":{
+				"type": "MultiEffect",
+				"effects":[
+					{
+						"type": "WaveEffect",
+                        "lifetime": 80,
+                        "sizeFrom": 0,
+                        "sizeTo": 380,
+                        "strokeFrom": 12,
+                        "strokeTo": 0,
+                        "colorFrom": "76428a",
+                        "colorTo": "76428a"
+					}
+				]
+			},
+
+			"fragBullets": 32,//第一
+			"fragRandomSpread": 360,
+			"fragLifeMin": 0.1,
+			"fragVelocityMax": 1,
+			"fragVelocityMin": 0.5,
+			"fragBullet":{
+				"hitSound": "c-shoot/c-plasmaboom",
+				"lifetime": 40,
+				"speed": 10,
+				"height":0,
+				"width":0,
+				"lightningDamage": 120,
+				"lightning": 6,
+				"lightningLength": 4,
+				"collides": false,
+				"collidesTeam": false,
+				"collidesGround":false,
+				"absorbable": false,
+				"hittable": false,
+				"collidesTerrain":false,
+				"splashDamageRadius": 32,
+				"splashDamage":200,
+				"despawnEffect":{
+					"type": "MultiEffect",
+					"effects":[
+						{
+							"type": "WaveEffect",
+							"lifetime": 50,
+							"sizeFrom": 60,
+							"sizeTo": 80,
+							"strokeFrom":1,
+							"strokeTo": 0,
+							"colorFrom": "76428a",
+							"colorTo": "76428a"
+						},
+						{
+                            "type": "ParticleEffect",
+                            "particles": 1,
+                            "sizeFrom": 8,
+                            "sizeTo": 0,
+                            "length": 0,
+                            "baseLength": 0,
+                            "lifetime": 80,
+                            "colorFrom": "c0ecff",
+                            "colorTo": "c0ecff00",
+                            "cone": 0
+                        }
+					]
+				},
+				"fragBullets": 16,//第二
+				"fragRandomSpread": 360,
+				"fragLifeMin": 0.1,
+				"fragVelocityMax": 1,
+				"fragVelocityMin": 0.5,
+				"fragBullet":{
+					"hitSound": "c-shoot/c-plasmaboom",
+					"lifetime": 40,
+					"speed": 5,
+					"height":0,
+					"width":0,
+					"lightningDamage": 120,
+					"lightning": 6,
+					"lightningLength": 16,
+					"collides": false,
+					"collidesTeam": false,
+					"collidesGround":false,
+					"absorbable": false,
+					"hittable": false,
+					"collidesTerrain":false,
+					"splashDamageRadius": 32,
+					"splashDamage":200,
+					"despawnEffect":{
+						"type": "MultiEffect",
+						"effects":[
+							{
+								"type": "WaveEffect",
+								"lifetime": 50,
+								"sizeFrom": 60,
+								"sizeTo": 80,
+								"strokeFrom":1,
+								"strokeTo": 0,
+								"colorFrom": "76428a",
+								"colorTo": "76428a"
+							},
+							{
+								"type": "ParticleEffect",
+								"particles": 1,
+								"sizeFrom": 8,
+								"sizeTo": 0,
+								"length": 0,
+								"baseLength": 0,
+								"lifetime": 80,
+								"colorFrom": "c0ecff",
+								"colorTo": "c0ecff00",
+								"cone": 0
+							}
+						]
+					}
+	
+					}
+				}
+			}
+
+
+		}
+
+		}
+	]	
+}

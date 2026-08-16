@@ -1,0 +1,500 @@
+package xx.xx_Type;
+
+import arc.Core;
+import arc.func.Boolf;
+import arc.func.Cons;
+import arc.graphics.Color;
+import arc.graphics.g2d.Draw;
+import arc.graphics.g2d.Lines;
+import arc.graphics.g2d.TextureRegion;
+import arc.math.Angles;
+import arc.math.Mathf;
+import arc.math.geom.Geometry;
+import arc.math.geom.Intersector;
+import arc.math.geom.Point2;
+import arc.struct.ObjectSet;
+import arc.struct.Seq;
+import arc.util.Nullable;
+import arc.util.Structs;
+import arc.util.Tmp;
+import mindustry.core.Renderer;
+import mindustry.entities.TargetPriority;
+import mindustry.game.Team;
+import mindustry.gen.Building;
+import mindustry.graphics.Drawf;
+import mindustry.graphics.Layer;
+import mindustry.graphics.Pal;
+import mindustry.ui.Bar;
+import mindustry.world.Block;
+import mindustry.world.Edges;
+import mindustry.world.Tile;
+import mindustry.world.blocks.power.BeamNode;
+import mindustry.world.blocks.power.PowerBlock;
+import mindustry.world.blocks.power.PowerGraph;
+import mindustry.world.blocks.power.PowerNode;
+import mindustry.world.meta.Env;
+import mindustry.world.meta.Stat;
+import mindustry.world.meta.StatUnit;
+
+
+import java.util.Arrays;
+
+import static mindustry.Vars.*;
+import static mindustry.world.blocks.power.PowerNode.*;
+
+public class ElectricityPylon extends PowerBlock {
+    private static final int maxPylonRange = 30;
+    protected static float maxLaserRange;
+
+
+    public TextureRegion laser;
+    public TextureRegion laserEnd;
+    public float laserRange = 5;//塔与非塔间连接
+    public int pylonRange = 10;//塔与塔间连接
+    public int maxNodes = 3;
+    public boolean irresistible;//塔与塔间连接是否可被塑钢墙阻挡
+    public boolean autolink = true;//塔与非塔间自动连接
+    public boolean sameBlockConnection = false;
+    protected final static ObjectSet<PowerGraph> graphs = new ObjectSet<>();//检测电网的对象
+    public float laserScale = 0.25f;
+    public boolean useLod = true;
+    protected static int returnInt = 0;
+
+    public Color laserColor1 = Color.white;
+    public Color laserColor2 = Color.valueOf("ffd9c2");
+    public float pulseScl = 7, pulseMag = 0.05f;
+    public float laserWidth = 0.4f;
+
+    public float powerLayer = Layer.power;
+
+
+    public ElectricityPylon(String name) {
+        super(name);
+        consumesPower = true;
+        outputsPower = false;
+        drawDisabled = false;
+        envEnabled |= Env.space;
+        allowDiagonal = false;
+        underBullets = true;
+        priority = TargetPriority.transport;
+        irresistible = true;
+    }
+
+    @Override
+    public void load() {
+        super.load();
+        //手动加载贴图，@Load
+        laser = Core.atlas.find(name + "-laser", "laser");
+        laserEnd = Core.atlas.find(name + "-laser-end", "laser-end");
+    }
+
+    @Override
+    public void setBars() {
+        super.setBars();
+        addBar("power", makePowerBalance());
+        addBar("batteries", makeBatteryBalance());
+
+        addBar("connections", entity -> new Bar(() ->
+                Core.bundle.format("bar.powerlines", entity.power.links.size, maxNodes),
+                () -> Pal.items,
+                () -> (float) entity.power.links.size / (float) maxNodes
+        ));
+    }
+
+    @Override
+    public void setStats() {
+        super.setStats();
+
+        stats.add(Stat.powerRange, laserRange, StatUnit.blocks);
+        stats.add(Stat.powerConnections, maxNodes, StatUnit.none);
+    }
+
+    @Override
+    public void init() {
+        super.init();
+
+        updateClipRadius((Math.max(laserRange, pylonRange) + 1) * tilesize);
+    }
+
+    @Override
+    public void drawPlace(int x, int y, int rotation, boolean valid) {
+        for (int i = 0; i < 4; i++) {
+            int maxLen = pylonRange + size / 2;
+            Building dest = null;
+            var dir = Geometry.d4[i];
+            int dx = dir.x, dy = dir.y;
+            int offset = size / 2;
+            for (int j = 1 + offset; j <= pylonRange + offset; j++) {
+                var other = world.build(x + j * dir.x, y + j * dir.y);
+
+                //hit insulated wall
+                if (!irresistible && other != null && other.isInsulated()) {
+                    break;
+                }
+
+                if (other != null && other.block instanceof ElectricityPylon && other.team == player.team()) {
+                    maxLen = j;
+                    dest = other;
+                    break;
+                }
+            }
+
+            Drawf.dashLine(Pal.placing,
+                    x * tilesize + dx * (tilesize * size / 2f + 2),
+                    y * tilesize + dy * (tilesize * size / 2f + 2),
+                    x * tilesize + dx * (maxLen) * tilesize,
+                    y * tilesize + dy * (maxLen) * tilesize
+            );
+
+            if (dest != null) {
+                Drawf.square(dest.x, dest.y, dest.block.size * tilesize / 2f + 2.5f, 0f);
+            }
+        }//塔与塔间
+
+
+        //塔与非塔间
+        Tile tile = world.tile(x, y);
+
+        if (tile == null || !autolink) return;
+
+        Lines.stroke(1f);
+        Draw.color(Pal.placing);
+        Drawf.circles(x * tilesize + offset, y * tilesize + offset, laserRange * tilesize);
+
+        getPotentialLinks(tile, player.team(), other -> {
+            Draw.color(laserColor1, Renderer.laserOpacity * 0.5f);
+            drawLaser(x * tilesize + offset, y * tilesize + offset, other.x, other.y, size, other.block.size);
+
+            Drawf.square(other.x, other.y, other.block.size * tilesize / 2f + 2f, Pal.place);
+        });
+
+        Draw.reset();
+
+
+    }
+
+    public void drawLaser(float x1, float y1, float x2, float y2, int size1, int size2) {
+        drawLaser(x1, y1, x2, y2, size1, size2, true);
+    }
+
+    public void drawLaser(float x1, float y1, float x2, float y2, int size1, int size2, boolean light) {
+        float angle1 = Angles.angle(x1, y1, x2, y2),
+                vx = Mathf.cosDeg(angle1), vy = Mathf.sinDeg(angle1),
+                len1 = size1 * tilesize / 2f - 1.5f, len2 = size2 * tilesize / 2f - 1.5f;
+
+        Drawf.laser(laser, laserEnd, x1 + vx * len1, y1 + vy * len1, x2 - vx * len2, y2 - vy * len2, laserScale);
+        //TODO 159.6换成需参数更多的Drawf.laser(laser, laserEnd, laserEnd, x1 + vx*len1, y1 + vy*len1, x2 - vx*len2, y2 - vy*len2, laserScale, light, useLod);
+    }
+
+    protected boolean overlaps(float srcx, float srcy, Tile other, Block otherBlock, float range) {
+        return Intersector.overlaps(Tmp.cr1.set(srcx, srcy, range), Tmp.r1.setCentered(other.worldx() + otherBlock.offset, other.worldy() + otherBlock.offset,
+                otherBlock.size * tilesize, otherBlock.size * tilesize));
+    }
+
+    protected boolean overlaps(float srcx, float srcy, Tile other, float range) {
+        return Intersector.overlaps(Tmp.cr1.set(srcx, srcy, range), other.getHitbox(Tmp.r1));
+    }
+
+    protected boolean overlaps(Building src, Building other, float range) {
+        return overlaps(src.x, src.y, other.tile, range);
+    }
+
+    protected boolean overlaps(Tile src, Tile other, float range) {
+        return overlaps(src.drawx(), src.drawy(), other, range);
+    }
+
+    public boolean overlaps(@Nullable Tile src, @Nullable Tile other) {
+        if (src == null || other == null) return true;
+        return Intersector.overlaps(Tmp.cr1.set(src.worldx() + offset, src.worldy() + offset, laserRange * tilesize), Tmp.r1.setSize(size * tilesize).setCenter(other.worldx() + offset, other.worldy() + offset));
+    }
+
+    protected void setupColor(float satisfaction) {
+        Draw.color(laserColor2);
+    }
+
+    public boolean linkValid(Building tile, Building link) {
+        //TODO 159.6才能用，怎么这么多不能用的，臭猫这是想干什么 return linkValid(tile, link, true);
+        return linkValid(tile, link, true);
+    }
+
+    public boolean linkValid(Building tile, Building link, boolean checkMaxNodes) {
+        if (tile == link || link == null || !link.block.hasPower || !link.block.connectedPower || tile.team != link.team || (sameBlockConnection && tile.block != link.block))
+            return false;
+
+        if (overlaps(tile, link, laserRange * tilesize) || (link.block instanceof PowerNode node && overlaps(link, tile, node.laserRange * tilesize))) {
+            if (checkMaxNodes && link.block instanceof PowerNode node) {
+                return link.power.links.size < node.maxNodes || link.power.links.contains(tile.pos());
+            }
+            return true;
+        }
+        return false;
+    }
+
+    //塔与非塔搜索
+    protected void getPotentialLinks(Tile tile, Team team, Cons<Building> others) {
+        if (!autolink) return;
+
+        Boolf<Building> valid = other -> other != null && other.tile != tile && other.block.connectedPower && other.power != null &&
+                (other.block.outputsPower || other.block.consumesPower || other.block instanceof PowerNode) &&
+                overlaps(tile.x * tilesize + offset, tile.y * tilesize + offset, other.tile, laserRange * tilesize) && other.team == team &&
+                !graphs.contains(other.power.graph) &&
+                !(other.block instanceof ElectricityPylon) &&//跳过自己
+                !insulated(tile, other.tile) &&
+                !(other instanceof PowerNode.PowerNodeBuild obuild && obuild.power.links.size >= ((PowerNode) obuild.block).maxNodes) &&
+                !Structs.contains(Edges.getEdges(size), p -> { //do not link to adjacent buildings
+                    var t = world.tile(tile.x + p.x, tile.y + p.y);
+                    return t != null && t.build == other;
+                });
+
+        tempBuilds.clear();
+        graphs.clear();
+
+        //add conducting graphs to prevent double link
+        for (var p : Edges.getEdges(size)) {
+            Tile other = tile.nearby(p);
+            if (other != null && other.team() == team && other.build != null && other.build.power != null) {
+                graphs.add(other.build.power.graph);
+            }
+        }
+
+        if (tile.build != null && tile.build.power != null) {
+            graphs.add(tile.build.power.graph);
+        }
+
+        var worldRange = laserRange * tilesize;
+        var tree = team.data().buildingTree;
+        if (tree != null) {
+            tree.intersect(tile.worldx() - worldRange, tile.worldy() - worldRange, worldRange * 2, worldRange * 2, build -> {
+                if (valid.get(build) && !tempBuilds.contains(build)) {
+                    tempBuilds.add(build);
+                }
+            });
+        }
+
+        tempBuilds.sort((a, b) -> {
+            int type = -Boolean.compare(a.block instanceof PowerNode, b.block instanceof PowerNode);
+            if (type != 0) return type;
+            return Float.compare(a.dst2(tile), b.dst2(tile));
+        });
+
+        returnInt = 0;
+
+        tempBuilds.each(valid, t -> {
+            if (returnInt++ < maxNodes) {
+                graphs.add(t.power.graph);
+                others.get(t);
+            }
+        });
+    }
+
+    //塔与塔搜索
+    public static void getNodeLinks(Tile tile, Block block, Team team, Cons<Building> others) {
+        var tree = team.data().buildingTree;
+
+        if (tree == null) return;
+
+        float cx = tile.worldx() + block.offset, cy = tile.worldy() + block.offset, s = block.size * tilesize / 2f, r = maxPylonRange * tilesize;
+
+        for (int i = 0; i < 4; i++) {
+            switch (i) {
+                case 0 -> Tmp.r1.set(cx - s, cy - s, r, s * 2f);
+                case 1 -> Tmp.r1.set(cx - s, cy - s, s * 2f, r);
+                case 2 -> Tmp.r1.set(cx + s, cy - s, -r, s * 2f).normalize();
+                case 3 -> Tmp.r1.set(cx - s, cy + s, s * 2f, -r).normalize();
+            }
+
+            tempBuilds.clear();
+            tree.intersect(Tmp.r1, tempBuilds);
+            int fi = i;
+            Building closest = tempBuilds.min(b -> b instanceof BeamNode.BeamNodeBuild node && node.couldConnect((fi + 2) % 4, block, tile.x, tile.y), b -> b.dst2(cx, cy));
+            tempBuilds.clear();
+            if (closest != null) {
+                others.get(closest);
+            }
+        }
+    }
+
+    public class ElectricityPylonBuild extends Building {
+        @Override
+        public void created() { // Called when one is placed/loaded in the world
+            if (autolink && laserRange > maxLaserRange) maxLaserRange = laserRange;
+
+            super.created();
+        }
+
+        //current links in cardinal directions
+        public Building[] links = new Building[4];
+        public Tile[] dests = new Tile[4];
+        public int lastChange = -2;
+
+        /**
+         * @return whether a beam could theoretically connect with the specified block at a position
+         */
+        public boolean couldConnect(int direction, Block target, int targetX, int targetY) {
+            int offset = -(target.size - 1) / 2;
+            int minX = targetX + offset, minY = targetY + offset, maxX = targetX + offset + target.size - 1, maxY = targetY + offset + target.size - 1;
+            var dir = Geometry.d4[direction];
+
+            int rangeOffset = size / 2;
+
+            //find first block with power in range
+            for (int j = 1 + rangeOffset; j <= pylonRange + rangeOffset; j++) {
+                var other = world.tile(tile.x + j * dir.x, tile.y + j * dir.y);
+
+                if (other == null) return false;
+
+                //hit insulated wall
+                if (!irresistible && other.build != null && other.build.isInsulated()) {
+                    return false;
+                }
+
+                //within target rectangle
+                if (other.x >= minX && other.y >= minY && other.x <= maxX && other.y <= maxY && other.block() instanceof ElectricityPylon) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        @Override
+        public boolean onConfigureBuildTapped(Building other) {
+            if (linkValid(this, other)) {
+                configure(other.pos());
+                return false;
+            }
+
+            if (this == other) { //double tapped
+                if (other.power.links.size == 0) { //find links
+                    Seq<Point2> points = new Seq<>();
+                    getPotentialLinks(tile, team, link -> {
+                        if (!insulated(this, link) && points.size < maxNodes) {
+                            points.add(new Point2(link.tileX() - tile.x, link.tileY() - tile.y));
+                        }
+                    });
+                    configure(points.toArray(Point2.class));
+                } else { //clear links
+                    configure(new Point2[0]);
+                }
+                deselect();
+                return false;
+            }
+
+            return true;
+        }
+
+
+        @Override
+        public void draw() {
+            super.draw();
+
+            if (Mathf.zero(Renderer.laserOpacity) || team == Team.derelict) return;
+
+            Draw.z(Layer.power);
+            Draw.color(laserColor1, laserColor2, (1f - power.graph.getSatisfaction()) * 0.86f + Mathf.absin(3f, 0.1f));
+            Draw.alpha(Renderer.laserOpacity);
+            float w = laserWidth + Mathf.absin(pulseScl, pulseMag);
+
+            for (int i = 0; i < 4; i++) {
+                if (dests[i] != null && links[i].wasVisible && (!(links[i].block instanceof BeamNode node) ||
+                        (links[i].tileX() != tileX() && links[i].tileY() != tileY()) ||
+                        (links[i].id > id && pylonRange >= node.range) || pylonRange > node.range)) {
+
+                    int dst = Math.max(Math.abs(dests[i].x - tile.x), Math.abs(dests[i].y - tile.y));
+                    //don't draw lasers for adjacent blocks
+                    if (dst > 1 + size / 2) {
+                        var point = Geometry.d4[i];
+                        float poff = tilesize / 2f;
+                        Drawf.laser(laser, laserEnd, x + poff * size * point.x, y + poff * size * point.y, dests[i].worldx() - poff * point.x, dests[i].worldy() - poff * point.y, w);
+                    }
+                }
+            }
+
+            Draw.reset();
+
+            if (Mathf.zero(Renderer.laserOpacity) || isPayload() || team == Team.derelict) return;
+
+            // 2. 设置绘制层和颜色
+            Draw.z(powerLayer);
+            setupColor(power.graph.getSatisfaction());
+
+            // 3. 遍历所有连接
+            for (int i = 0; i < power.links.size; i++) {
+                Building link = world.build(power.links.get(i));
+
+                // 4. 验证连接是否有效
+                if (!linkValid(this, link)) continue;
+
+                // 5. 避免重复绘制（只在 id 较小的节点绘制）
+                if (link.block instanceof PowerNode && link.id >= id) continue;
+
+                // 6. 绘制激光
+                drawLaser(x, y, link.x, link.y, size, link.block.size);
+            }
+
+            Draw.reset();
+        }
+
+        @Override
+        public void pickedUp() {
+            Arrays.fill(links, null);
+            Arrays.fill(dests, null);
+        }
+
+        public void updateDirections() {
+            for (int i = 0; i < 4; i++) {
+                var prev = links[i];
+                var dir = Geometry.d4[i];
+                links[i] = null;
+                dests[i] = null;
+                int offset = size / 2;
+                //find first block with power in range
+                for (int j = 1 + offset; j <= laserRange + offset; j++) {
+                    var other = world.build(tile.x + j * dir.x, tile.y + j * dir.y);
+
+                    //hit insulated wall
+                    if (other != null && other.isInsulated()) {
+                        break;
+                    }
+
+                    //power nodes do NOT play nice with beam nodes, do not touch them as that forcefully modifies their links
+                    if (other != null && other.block.hasPower && other.block.connectedPower && other.team == team && !(other.block instanceof PowerNode)) {
+                        links[i] = other;
+                        dests[i] = world.tile(tile.x + j * dir.x, tile.y + j * dir.y);
+                        break;
+                    }
+                }
+
+                var next = links[i];
+
+                if (next != prev) {
+                    //unlinked, disconnect and reflow
+                    if (prev != null && prev.isAdded()) {
+                        prev.power.links.removeValue(pos());
+                        power.links.removeValue(prev.pos());
+
+                        PowerGraph newgraph = new PowerGraph();
+                        //reflow from this point, covering all tiles on this side
+                        newgraph.reflow(this);
+
+                        if (prev.power.graph != newgraph) {
+                            //reflow power for other end
+                            PowerGraph og = new PowerGraph();
+                            og.reflow(prev);
+                        }
+                    }
+
+                    //linked to a new one, connect graphs
+                    if (next != null) {
+                        power.links.addUnique(next.pos());
+                        next.power.links.addUnique(pos());
+
+                        power.graph.addGraph(next.power.graph);
+                    }
+                }
+            }
+        }
+
+
+    }
+}

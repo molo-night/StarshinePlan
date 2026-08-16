@@ -1,0 +1,32 @@
+#the mod name as displayed in-game
+displayName: "StarshinePlan"
+
+#the internal name of your mod
+name: "xx-mod"
+
+#your name
+author: "molo\nmullibenMolly"
+
+#the fully qualified main class of the mod
+main: "xx.xx"
+
+#the mod description as seen in the mod dialog
+description: "感谢OP-23提供的贴图和代码\nThink OP-23 providing code and sprites."
+
+#the mod version
+version: 0.0.3_v159.3
+
+#the minimum game build required to run this mod
+minGameVersion: 159.3
+
+#this is a java mod
+java: true
+
+assets: [
+    "bundles/"
+    "content"
+    "sprites/"
+    "sounds/"
+]
+
+
