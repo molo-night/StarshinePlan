@@ -97,7 +97,7 @@ public class xx_Blocks {
         text_production = new xx_ConsumeGenerator("text_production"){{
             requirements(Category.power, with(Items.graphite, 100, Items.carbide, 60, Items.oxide, 60f, Items.silicon, 100));
             powerProduction = 10;
-            protentionVoltage = 10;
+            protentionVoltage = 10;//发电电压
 
 
             consumeLiquids(LiquidStack.with(Liquids.slag, 20f / 60f, Liquids.arkycite, 40f / 60f));

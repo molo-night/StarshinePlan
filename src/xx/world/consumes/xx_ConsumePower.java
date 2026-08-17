@@ -2,6 +2,11 @@ package xx.world.consumes;
 
 import mindustry.gen.Building;
 import mindustry.world.consumers.ConsumePower;
+import mindustry.world.meta.Stat;
+import mindustry.world.meta.StatUnit;
+import mindustry.world.meta.Stats;
+import xx.world.meta.xx_Stat;
+import xx.world.meta.xx_StatUnit;
 
 public class xx_ConsumePower extends ConsumePower {
 
@@ -23,7 +28,7 @@ public class xx_ConsumePower extends ConsumePower {
         public float maxDischargeCurrent;//最大放电电流，这是用于电池的
         public float maxDischargePower;//放电功率
 
-        //TODO有关电池的设置以后来弄，0.0.3-1B专注于工厂用
+        //TODO有关电池的设置以后来弄。
 
         //默认
         public xx_ConsumePower(){
@@ -49,8 +54,16 @@ public class xx_ConsumePower extends ConsumePower {
                 this(usage , 0 , false);
                 this.ratedVoltage = ratedVoltage;
                 this.resistance = resistance;
+                this.maxUsage = usage;
         }
 
+        @Override
+        public void display(Stats stats){
+                if(usage > 0f){
+                        stats.add(Stat.powerUse, usage, xx_StatUnit.powerSecond2);
+                        stats.add(xx_Stat.ratedVoltage, ratedVoltage, xx_StatUnit.voltage);
+                }
+        }
 
 
         @Override

@@ -9,5 +9,10 @@ public class xx_Stat extends Stat {
     }
 
     public static final Stat
-            baseProtentionVoltage = new Stat("baseProtentionVoltage", StatCat.power);
+            pbrang = new Stat("pbrang", StatCat.power),
+            baseProtentionVoltage = new Stat("baseProtentionVoltage", StatCat.power),
+            ratedVoltage = new Stat("ratedVoltage", StatCat.power),
+            maxVoltage = new Stat("maxVoltage", StatCat.power),
+            maxUsage = new Stat("maxUsage", StatCat.power);
+
 }

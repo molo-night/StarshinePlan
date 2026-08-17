@@ -18,8 +18,13 @@ import mindustry.world.blocks.power.PowerNode;
 import mindustry.world.blocks.production.GenericCrafter;
 import mindustry.world.consumers.Consume;
 import mindustry.world.consumers.ConsumePower;
+import mindustry.world.meta.Stat;
+import mindustry.world.meta.StatUnit;
+import mindustry.world.meta.StatValues;
 import xx.gen.xx_Building;
 import xx.world.consumes.xx_ConsumePower;
+import xx.world.meta.xx_Stat;
+import xx.world.meta.xx_StatUnit;
 import xx.world.modules.xx_PowerModule;
 
 import static mindustry.Vars.*;
@@ -36,6 +41,21 @@ public class text_crafter extends GenericCrafter {
         connectedPower = false;
         this.maxVoltage = 0;
         this.maxCurrent = 0;
+    }
+
+    @Override
+    public void setStats(){
+        super.setStats();
+        //TODO 后面需要适配不耗电的工厂
+        //目前没有最大输入功率一说，没有过载。
+        if(hasPower) {
+            stats.add(xx_Stat.maxVoltage, maxVoltage, xx_StatUnit.voltage);
+        }
+    }
+
+    @Override
+    public void setBars(){
+        super.setBars();
     }
 
     @Override

@@ -30,7 +30,7 @@ import mindustry.world.meta.BlockStatus;
 import mindustry.world.meta.Stat;
 import mindustry.world.meta.StatUnit;
 import mindustry.world.modules.PowerModule;
-import xx.expand.xx_Stat;
+import xx.world.meta.xx_Stat;
 
 
 import java.util.Arrays;
