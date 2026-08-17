@@ -11,7 +11,7 @@ author: "molo\nmullibenMolly"
 main: "xx.xx"
 
 #the mod description as seen in the mod dialog
-description: "基本独立于原版内容，请勿与原版混用。\n做兼容哦，崩了别怪我。"
+description: "基本独立于原版内容，请勿与原版混用。\n没做兼容哦，崩了别怪我。"
 
 #the mod version
 version: 0.0.3_v159.3

@@ -10,6 +10,8 @@ import xx.content.xx_Blocks;
 import xx.expand.EntityRegister;
 import xx.expand.xx_HUD;
 import xx.expand.F_CompositeUnitEntity;
+import xx.world.meta.xx_Stat;
+import xx.world.meta.xx_StatUnit;
 
 public class xx extends Mod{
 

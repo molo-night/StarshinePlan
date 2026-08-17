@@ -13,9 +13,13 @@ import mindustry.world.Tile;
 import mindustry.world.blocks.power.BeamNode;
 import mindustry.world.blocks.power.ConsumeGenerator;
 import mindustry.world.blocks.power.PowerNode;
+import mindustry.world.meta.Stat;
 import mindustry.world.meta.StatUnit;
+import mindustry.world.meta.StatValues;
 import mindustry.world.modules.ItemModule;
 import mindustry.world.modules.LiquidModule;
+import xx.world.meta.xx_Stat;
+import xx.world.meta.xx_StatUnit;
 import xx.world.modules.xx_PowerModule;
 
 import static mindustry.Vars.*;
@@ -33,8 +37,44 @@ public class xx_ConsumeGenerator extends ConsumeGenerator {
 
     @Override
     public void setStats(){
-        super.setStats();
-        stats.add(generationType, protentionVoltage, StatUnit.powerSecond);
+        stats.timePeriod = itemDuration;
+
+        stats.add(Stat.size, "@x@", size, size);
+
+        if(synthetic()){
+            stats.add(Stat.health, health, StatUnit.none);
+            if(armor > 0){
+                stats.add(Stat.armor, armor, StatUnit.none);
+            }
+        }
+
+        if(canBeBuilt() && requirements.length > 0){
+            stats.add(Stat.buildTime, buildTime / 60, StatUnit.seconds);
+            stats.add(Stat.buildCost, StatValues.items(false, requirements));
+        }
+
+        if(instantTransfer){
+            stats.add(Stat.maxConsecutive, 2, StatUnit.none);
+        }
+
+        for(var c : consumers){
+            c.display(stats);
+        }
+
+        //Note: Power stats are added by the consumers.
+        if(hasLiquids) stats.add(Stat.liquidCapacity, liquidCapacity, StatUnit.liquidUnits);
+        if(hasItems && itemCapacity > 0) stats.add(Stat.itemCapacity, itemCapacity, StatUnit.items);
+
+        stats.add(generationType, powerProduction, xx_StatUnit.powerSecond2);//功率显示
+        stats.add(xx_Stat.baseProtentionVoltage,protentionVoltage,xx_StatUnit.voltage);//电压显示
+
+        if(hasItems){
+            stats.add(Stat.productionTime, itemDuration / 60f, StatUnit.seconds);
+        }
+
+        if(outputLiquid != null){
+            stats.add(Stat.output, StatValues.liquid(outputLiquid.liquid, outputLiquid.amount * 60f, true));
+        }
     }
 
 
