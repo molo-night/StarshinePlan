@@ -1,13 +1,16 @@
 package xx.world.blocks.power;
 
+import arc.Core;
 import arc.graphics.g2d.Draw;
 import arc.util.Interval;
+import arc.util.Strings;
 import mindustry.Vars;
 import mindustry.core.Renderer;
 import mindustry.game.Team;
 import mindustry.gen.Building;
 import mindustry.graphics.Drawf;
 import mindustry.graphics.Pal;
+import mindustry.ui.Bar;
 import mindustry.world.Block;
 import mindustry.world.Tile;
 import mindustry.world.blocks.power.BeamNode;
@@ -36,6 +39,29 @@ public class xx_ConsumeGenerator extends ConsumeGenerator {
     }
 
     @Override
+    public void setBars(){
+        super.setBars();
+
+        if(outputLiquid != null){
+            removeBar("liquid-" + outputLiquid.liquid.name);
+        }
+
+        if(hasPower && outputsPower){
+            removeBar("power");
+            addBar("power", (GeneratorBuild entity) -> new Bar(() ->
+                    Core.bundle.format("bar.poweroutput2",
+                            Strings.fixed(entity.getPowerProduction(), 1)),
+                    () -> Pal.powerBar,
+                    () -> entity.productionEfficiency));
+        }
+
+        if(outputLiquid != null){
+            addLiquidBar(outputLiquid.liquid);
+        }
+
+    }
+
+    @Override//信息统计面板
     public void setStats(){
         stats.timePeriod = itemDuration;
 

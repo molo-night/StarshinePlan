@@ -17,9 +17,6 @@ import xx.world.modules.xx_PowerModule;
 
 public class xx_PowerGraph extends PowerGraph {//极具简化的电力系统，想要更加拟真，电脑会算冒烟的。这不是做电路模拟
     public int graphVoltage;//电压，这里指电压等级，如果真的用数值的话，我估计我会写死，玩家烦死，电脑算死
-    public float current;//电流
-    public float power;//功率
-
 
     public float TotalResistance;//电网中总电阻
 
@@ -243,7 +240,7 @@ public class xx_PowerGraph extends PowerGraph {//极具简化的电力系统，�
             return;
         }
 
-        graphVoltage = getGraphVoltage();
+        graphVoltage = getGraphVoltage();//计算电网电压
         float powerNeeded = getPowerNeeded();
         float powerProduced = getPowerProduced();
         //float totalResistance = getTotalResistance();//TODO可以优化为数组改变时计算，不变时数值不变，但这都是后话了
@@ -281,7 +278,6 @@ public class xx_PowerGraph extends PowerGraph {//极具简化的电力系统，�
     @Override//用于连接两个电网
     public void addGraph(PowerGraph graph){
         if(graph instanceof xx_PowerGraph g) {
-            Log.info("addGraph(xx_PowerGraph graph)");
             if (g == this) return;
             //if (g.voltage != this.voltage && g.voltage != 0 && voltage !=0) return;
 
