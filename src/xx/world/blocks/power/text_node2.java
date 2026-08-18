@@ -1,7 +1,9 @@
 package xx.world.blocks.power;
 
+import arc.Core;
 import arc.func.Boolf;
 import arc.func.Cons;
+import arc.func.Func;
 import arc.graphics.g2d.Draw;
 import arc.graphics.g2d.Lines;
 import arc.math.Mathf;
@@ -11,10 +13,12 @@ import arc.struct.Seq;
 import arc.util.Structs;
 import arc.util.Time;
 import mindustry.core.Renderer;
+import mindustry.core.UI;
 import mindustry.game.Team;
 import mindustry.gen.Building;
 import mindustry.graphics.Drawf;
 import mindustry.graphics.Pal;
+import mindustry.ui.Bar;
 import mindustry.world.Edges;
 import mindustry.world.Tile;
 import mindustry.world.blocks.power.PowerGraph;
@@ -100,6 +104,32 @@ public class text_node2 extends PowerNode{
                 configurations.get(Integer.class).get(tile, Point2.pack(p.x + tile.tileX(), p.y + tile.tileY()));
             }
         });
+    }
+
+    @Override
+    public void setBars(){
+        super.setBars();
+        removeBar("power");
+        removeBar("batteries");
+        removeBar("connections");
+
+        addBar("power", makePowerBalance());
+        addBar("batteries", makeBatteryBalance());
+
+        addBar("connections", entity -> new Bar(() ->
+                Core.bundle.format("bar.powerlines", entity.power.links.size, maxNodes),
+                () -> Pal.items,
+                () -> (float)entity.power.links.size / (float)maxNodes
+        ));
+    }
+
+    public static Func<Building, Bar> makePowerBalance(){
+        return entity -> new Bar(() ->
+                Core.bundle.format("bar.powerbalance2",
+                        ((entity.power.graph.getPowerBalance() >= 0 ? "+" : "") + UI.formatAmount((long)(entity.power.graph.getPowerBalance())))),
+                () -> Pal.powerBar,
+                () -> Mathf.clamp(entity.power.graph.getLastPowerProduced() / entity.power.graph.getLastPowerNeeded())
+        );
     }
 
     @Override

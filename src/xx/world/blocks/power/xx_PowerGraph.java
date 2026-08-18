@@ -247,15 +247,15 @@ public class xx_PowerGraph extends PowerGraph {//极具简化的电力系统，�
         //remind 接下来就是改distributePower(...)了
 
 
-//        lastPowerNeeded = powerNeeded;
-//        lastPowerProduced = powerProduced;
-//
-//        lastScaledPowerIn = powerProduced ;
-//        lastScaledPowerOut = powerNeeded ;
-//        lastCapacity = getTotalBatteryCapacity();
-//        lastPowerStored = getBatteryStored();
-//
-//        powerBalance.add((lastPowerProduced - lastPowerNeeded) / Time.delta);
+        lastPowerNeeded = powerNeeded;
+        lastPowerProduced = powerProduced;
+
+        lastScaledPowerIn = powerProduced ;
+        lastScaledPowerOut = powerNeeded ;
+        lastCapacity = getTotalBatteryCapacity();
+        lastPowerStored = getBatteryStored();
+
+        powerBalance.add(lastPowerProduced - lastPowerNeeded);//用于电力节点的bar
 
         if(!(consumers.size == 0 && producers.size == 0 && batteries.size == 0)){
             boolean charged = false;
