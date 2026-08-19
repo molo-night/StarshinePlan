@@ -11,24 +11,25 @@ import arc.util.Time;
 import mindustry.gen.Building;
 import mindustry.gen.PowerGraphUpdater;
 import mindustry.world.blocks.power.PowerGraph;
+import mindustry.world.blocks.power.PowerNode;
 import xx.gen.xx_Building;
 import xx.world.consumes.xx_ConsumePower;
 import xx.world.modules.xx_PowerModule;
 
+//remind 我想要重构！！！entity是private，现在虽然看起来没什么问题，但无法自动删除entity从而导致无用地占用内存，这就很蛋疼。
 public class xx_PowerGraph extends PowerGraph {//极具简化的电力系统，想要更加拟真，电脑会算冒烟的。这不是做电路模拟
     public int graphVoltage;//电压，这里指电压等级，如果真的用数值的话，我估计我会写死，玩家烦死，电脑算死
+    public float powerLoss;
+    public float lineLossRate;
 
-    public float TotalResistance;//电网中总电阻
-
-    public final Seq<Building> parallelConnectionBuilding = new Seq<>(false,16 , Building.class);//并联连接组
-    public final Seq<Building> seriesConnectionBuilding = new Seq<>(false,16 , Building.class);//串联连接组
+    public final Seq<Building> powerNode = new Seq<>(false,16 , Building.class);//电力节点
 
     private static final Queue<Building> queue = new Queue<>();
     private static final Seq<Building> outArray1 = new Seq<>();
     private static final Seq<Building> outArray2 = new Seq<>();
     private static final IntSet closedSet = new IntSet();
 
-    private final @Nullable PowerGraphUpdater entity;
+    private final @Nullable PowerGraphUpdater entity;//拥有极大的问题！！！
     private final WindowedMean powerBalance = new WindowedMean(60);
     private float lastPowerProduced, lastPowerNeeded, lastPowerStored;
     private float lastScaledPowerIn, lastScaledPowerOut, lastCapacity;
@@ -67,46 +68,40 @@ public class xx_PowerGraph extends PowerGraph {//极具简化的电力系统，�
         return lastPowerNeeded;
     }
 
+    //计算线损率
+    public float getLineLossRate(float power){
+        return (float) Mathf.round(powerLoss / power * 1000) / 10;
+    }
 
-    //用于计算电网中总电阻，会智能忽略不需消耗电的工厂（停工，电压不足不耗电。输入功率不足会导致低效运行或空转）
-    //remind shouldConsumePower与enable需处理好。
-//    public float getTotalResistance(){
-//        float resistance = 0;//临时存储
-//        var items = parallelConnectionBuilding.items;
-//        for(int i = 0; i < parallelConnectionBuilding.size; i++){//计算并联
-//            var parallelConnection = items[i];
-//            xx_ConsumePower consumePower = (xx_ConsumePower) parallelConnection.block.consPower;
-//            if(parallelConnection.shouldConsumePower && consumePower.ratedVoltage >= graphVoltage) {
-//                resistance += 1 / consumePower.resistance;
-//            }
-//        }
-//
-//        resistance = 1/resistance;
-//
-//        items = seriesConnectionBuilding.items;
-//        for(int i = 0; i < seriesConnectionBuilding.size; i++){//计算串联
-//            var seriesConnection = items[i];
-//            xx_ConsumePower consumePower = (xx_ConsumePower) seriesConnection.block.consPower;
-//            resistance += consumePower.resistance;//remind 目前串联的只有电力节点，所以没有判断
-//        }
-//        return resistance;
-//    }
+    //计算电力节点电阻
+    public float getSeriesResistance(){
+        float resistance = 0;//临时存储
+        var items = powerNode.items;
+        for(int i = 0; i < powerNode.size; i++){//计算串联
+            var seriesConnection = items[i];
+            text_node2 powerNode = (text_node2) seriesConnection.block;
+            resistance += powerNode.resistance;//remind 只有电力节点是串联
+        }
+        return resistance;
+    }
+
+    //计算损耗功率，线损
+    public float getPowerLoss(float power){
+        return Mathf.pow( power/graphVoltage ,2) * getSeriesResistance();
+    }
 
     @Override
     public void add(Building build){
         super.add(build);
-        xx_PowerModule power = (xx_PowerModule)build.power;
-        if(power.parallelConnection){
-            parallelConnectionBuilding.add(build);
-        }
-        else seriesConnectionBuilding.add(build);
 
+        //我没招了
+        powerNode.clear();
+        powerNode.addAll(all.select(item -> item != null && item.block instanceof text_node2));
     }
 
     @Override
     public void clear() {
-        parallelConnectionBuilding.clear();
-        seriesConnectionBuilding.clear();
+        powerNode.clear();
         super.clear();
     }
 
@@ -116,8 +111,7 @@ public class xx_PowerGraph extends PowerGraph {//极具简化的电力系统，�
         producers.remove(build);
         consumers.remove(build);
         batteries.remove(build);
-        parallelConnectionBuilding.clear();
-        seriesConnectionBuilding.clear();
+        powerNode.remove(build);
     }
 
     @Override
@@ -243,17 +237,13 @@ public class xx_PowerGraph extends PowerGraph {//极具简化的电力系统，�
         graphVoltage = getGraphVoltage();//计算电网电压
         float powerNeeded = getPowerNeeded();
         float powerProduced = getPowerProduced();
-        //float totalResistance = getTotalResistance();//TODO可以优化为数组改变时计算，不变时数值不变，但这都是后话了
-        //remind 接下来就是改distributePower(...)了
+        powerLoss = getPowerLoss(powerProduced);
+        lineLossRate = getLineLossRate(powerProduced);
 
 
-        lastPowerNeeded = powerNeeded;
+        lastPowerNeeded = powerNeeded + powerLoss;
         lastPowerProduced = powerProduced;
 
-        lastScaledPowerIn = powerProduced ;
-        lastScaledPowerOut = powerNeeded ;
-        lastCapacity = getTotalBatteryCapacity();
-        lastPowerStored = getBatteryStored();
 
         powerBalance.add(lastPowerProduced - lastPowerNeeded);//用于电力节点的bar
 
@@ -271,7 +261,7 @@ public class xx_PowerGraph extends PowerGraph {//极具简化的电力系统，�
                 }
             }
 
-            distributePower(powerNeeded, powerProduced, charged);
+            distributePower(powerNeeded + powerLoss, powerProduced, charged);
         }
     }
 
@@ -279,7 +269,6 @@ public class xx_PowerGraph extends PowerGraph {//极具简化的电力系统，�
     public void addGraph(PowerGraph graph){
         if(graph instanceof xx_PowerGraph g) {
             if (g == this) return;
-            //if (g.voltage != this.voltage && g.voltage != 0 && voltage !=0) return;
 
 
             //merge into other graph instead.
@@ -300,19 +289,20 @@ public class xx_PowerGraph extends PowerGraph {//极具简化的电力系统，�
 
     @Override//调试内容
     public String toString(){
+        float powerProduced = getPowerProduced();
         return "xx_PowerGraph{" +
                 "\n产电producers = " + producers +
                 "\n耗电consumers = " + consumers +
                 "\n电池batteries = " + batteries +
+                "\n传输 = "+ powerNode +
                 "\n所有all = " + all +
-                "\n并联parallelConnectionBuilding = "+parallelConnectionBuilding+
-                "\n串联seriesConnectionBuilding = "+seriesConnectionBuilding+
                 "\n个数all.size = "+all.size+
                 "\ngraphID = " + graphID +
-                "\n发电功率 = "+getPowerProduced()+
+                "\n发电功率 = "+powerProduced+
                 "\n耗电功率 = "+getPowerNeeded()+
+                "\n损耗功率 = "+getPowerLoss(powerProduced)+
                 "\n电网电压 = "+graphVoltage+
-                //"\n总阻 = "+getTotalResistance()+
+                "\n损耗电阻 = "+getSeriesResistance()+
                 "\n}";
     }
 

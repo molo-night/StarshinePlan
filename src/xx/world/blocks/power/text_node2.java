@@ -34,8 +34,11 @@ import static mindustry.Vars.world;
 
 public class text_node2 extends PowerNode{
 
+    public float resistance;//TODO电阻，视为纯电阻，当然后面可以做升电压降电阻
+
     public text_node2(String name){
         super(name);
+        resistance = 1;
         configurable = true;
         ignoreResizeConfig = true;
         consumesPower = false;
@@ -124,13 +127,21 @@ public class text_node2 extends PowerNode{
     }
 
     public static Func<Building, Bar> makePowerBalance(){
-        return entity -> new Bar(() ->
-                Core.bundle.format("bar.powerbalance2",
-                        ((entity.power.graph.getPowerBalance() >= 0 ? "+" : "") + UI.formatAmount((long)(entity.power.graph.getPowerBalance())))),
-                () -> Pal.powerBar,
-                () -> Mathf.clamp(entity.power.graph.getLastPowerProduced() / entity.power.graph.getLastPowerNeeded())
-        );
+        return entity -> {
+            xx_PowerGraph graph = (xx_PowerGraph) entity.power.graph;
+            return new Bar(() ->
+                    Core.bundle.format("bar.powerbalance2",
+                            (graph.getPowerBalance() >= 0 ? "+" : "") +
+                                    UI.formatAmount((long)graph.getPowerBalance()),
+                            UI.formatAmount((long) graph.lineLossRate)
+                    ),
+                    () -> Pal.powerBar,
+                    () -> Mathf.clamp(graph.getLastPowerProduced() / graph.getLastPowerNeeded())
+            );
+        };
     }
+
+
 
     @Override
     protected void getPotentialLinks(Tile tile, Team team, Cons<Building> others){
