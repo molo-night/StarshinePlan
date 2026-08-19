@@ -78,4 +78,6 @@ It focuses on **internal balance** and emphasizes **industry**, while **signific
 
 ### 备注
 本mod仅支持159.3及以上版本。\
-编写过程中未考虑与原版及其他 mod 的兼容性，崩了就别怪我了。
+编写过程中未考虑与原版及其他 mod 的兼容性，崩了就别怪我了。\
+qq299735363
+
