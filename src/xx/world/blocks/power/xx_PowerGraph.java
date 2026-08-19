@@ -7,20 +7,20 @@ import arc.struct.Queue;
 import arc.struct.Seq;
 import arc.util.Log;
 import arc.util.Nullable;
-import arc.util.Time;
 import mindustry.gen.Building;
 import mindustry.gen.PowerGraphUpdater;
 import mindustry.world.blocks.power.PowerGraph;
-import mindustry.world.blocks.power.PowerNode;
-import xx.gen.xx_Building;
 import xx.world.consumes.xx_ConsumePower;
-import xx.world.modules.xx_PowerModule;
 
-//remind 我想要重构！！！entity是private，现在虽然看起来没什么问题，但无法自动删除entity从而导致无用地占用内存，这就很蛋疼。
+import java.lang.reflect.Field;
+
+//反射牛逼。
 public class xx_PowerGraph extends PowerGraph {//极具简化的电力系统，想要更加拟真，电脑会算冒烟的。这不是做电路模拟
     public int graphVoltage;//电压，这里指电压等级，如果真的用数值的话，我估计我会写死，玩家烦死，电脑算死
     public float powerLoss;
     public float lineLossRate;
+
+    private static Field entityField;//缓存
 
     public final Seq<Building> powerNode = new Seq<>(false,16 , Building.class);//电力节点
 
@@ -29,41 +29,71 @@ public class xx_PowerGraph extends PowerGraph {//极具简化的电力系统，�
     private static final Seq<Building> outArray2 = new Seq<>();
     private static final IntSet closedSet = new IntSet();
 
-    private final @Nullable PowerGraphUpdater entity;//拥有极大的问题！！！
+    //private final @Nullable PowerGraphUpdater entity;//拥有极大的问题！！！
     private final WindowedMean powerBalance = new WindowedMean(60);
     private float lastPowerProduced, lastPowerNeeded, lastPowerStored;
     private float lastScaledPowerIn, lastScaledPowerOut, lastCapacity;
     //diodes workaround for correct energy production info
     private float energyDelta = 0f;
 
-    private final int graphID;
     private static int lastGraphID;
+
+    //运用反射
+    static{
+        try{
+            entityField = PowerGraph.class.getDeclaredField("entity");
+            entityField.setAccessible(true);
+
+        }
+        catch (Exception e) {
+            Log.err("Failed to initialize reflection fields for xx_PowerGraph", e);
+        }
+    }
 
     //古法编程，你值得拥有
 
     public xx_PowerGraph(){
-        entity = PowerGraphUpdater.create();
-        entity.graph = this;
-        graphID = lastGraphID++;
+        super();
+        initEntity();
     }
 
     public xx_PowerGraph(boolean noEntity){
-        entity = null;
-        graphID = lastGraphID++;
+        super();
     }
 
+
+    private void initEntity() {
+        try {
+            PowerGraphUpdater entity = (PowerGraphUpdater) entityField.get(this);
+            if (entity == null) {
+                entity = PowerGraphUpdater.create();
+                entityField.set(this, entity);
+            }
+            // 设置 entity.graph = this
+            Field graphField = PowerGraphUpdater.class.getDeclaredField("graph");
+            graphField.setAccessible(true);
+            graphField.set(entity, this);
+        } catch (Exception e) {
+            Log.err("Failed to init xx_PowerGraph entity", e);
+        }
+    }
+
+    @Override
     public float getPowerBalance(){
         return powerBalance.rawMean();
     }
 
+    @Override
     public boolean hasPowerBalanceSamples(){
         return powerBalance.hasEnoughData();
     }
 
+    @Override
     public float getLastPowerProduced(){
         return lastPowerProduced;
     }
 
+    @Override
     public float getLastPowerNeeded(){
         return lastPowerNeeded;
     }
@@ -147,6 +177,12 @@ public class xx_PowerGraph extends PowerGraph {//极具简化的电力系统，�
             graph.update();
         }
 
+        PowerGraphUpdater entity = null;
+        try {
+            entity = (PowerGraphUpdater) entityField.get(this);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
         //implied empty graph here
         if(entity != null) entity.remove();
     }
@@ -161,8 +197,6 @@ public class xx_PowerGraph extends PowerGraph {//极具简化的电力系统，�
         }
         return powerProduced;
     }
-
-
 
     @Override//总耗电电量
     public float getPowerNeeded(){
@@ -190,7 +224,7 @@ public class xx_PowerGraph extends PowerGraph {//极具简化的电力系统，�
     }
 
 
-    @Override
+    @Override//电力分配
     public void distributePower(float needed, float produced, boolean charged) {
         float coverage = Mathf.zero(needed) && Mathf.zero(produced) && !charged && Mathf.zero(lastPowerStored) ? 0f : Mathf.zero(needed) ? 1f : Math.min(1, produced / needed);
         //电功率应该根据每个工厂的内阻与总阻的比值来分配，再根据分配来的功率与额定功率的比值确定电力满足度。
@@ -234,6 +268,8 @@ public class xx_PowerGraph extends PowerGraph {//极具简化的电力系统，�
             return;
         }
 
+        //Log.info("电网" + getID());
+
         graphVoltage = getGraphVoltage();//计算电网电压
         float powerNeeded = getPowerNeeded();
         float powerProduced = getPowerProduced();
@@ -265,27 +301,27 @@ public class xx_PowerGraph extends PowerGraph {//极具简化的电力系统，�
         }
     }
 
-    @Override//用于连接两个电网
-    public void addGraph(PowerGraph graph){
-        if(graph instanceof xx_PowerGraph g) {
-            if (g == this) return;
-
-
-            //merge into other graph instead.
-            if (g.all.size > all.size) {
-                g.addGraph(this);
-                return;
-            }
-
-            //other entity should be removed as the graph was merged
-            if (g.entity != null) g.entity.remove();
-
-            for (Building tile : g.all) {
-                add(tile);
-            }
-            checkAdd();
-        }
-    }
+//    @Override//用于连接两个电网
+//    public void addGraph(PowerGraph graph){
+//        if(graph instanceof xx_PowerGraph g) {
+//            if (g == this) return;
+//
+//
+//            //merge into other graph instead.
+//            if (g.all.size > all.size) {
+//                g.addGraph(this);
+//                return;
+//            }
+//
+//            //other entity should be removed as the graph was merged
+//            if (g.entity != null) g.entity.remove();
+//
+//            for (Building tile : g.all) {
+//                add(tile);
+//            }
+//            checkAdd();
+//        }
+//    }
 
     @Override//调试内容
     public String toString(){
@@ -297,7 +333,7 @@ public class xx_PowerGraph extends PowerGraph {//极具简化的电力系统，�
                 "\n传输 = "+ powerNode +
                 "\n所有all = " + all +
                 "\n个数all.size = "+all.size+
-                "\ngraphID = " + graphID +
+                "\ngraphID = " + getID() +
                 "\n发电功率 = "+powerProduced+
                 "\n耗电功率 = "+getPowerNeeded()+
                 "\n损耗功率 = "+getPowerLoss(powerProduced)+

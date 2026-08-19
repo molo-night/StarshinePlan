@@ -13,8 +13,6 @@ import mindustry.graphics.Pal;
 import mindustry.world.Block;
 import mindustry.world.Tile;
 import mindustry.world.blocks.power.BeamNode;
-import mindustry.world.blocks.power.PowerGraph;
-import mindustry.world.blocks.power.PowerNode;
 import mindustry.world.meta.BlockStatus;
 import xx.gen.xx_Building;
 import xx.world.modules.xx_PowerModule;

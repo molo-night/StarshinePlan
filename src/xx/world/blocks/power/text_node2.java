@@ -21,7 +21,6 @@ import mindustry.graphics.Pal;
 import mindustry.ui.Bar;
 import mindustry.world.Edges;
 import mindustry.world.Tile;
-import mindustry.world.blocks.power.PowerGraph;
 import mindustry.world.blocks.power.PowerNode;
 import mindustry.world.meta.Env;
 import mindustry.world.modules.PowerModule;
